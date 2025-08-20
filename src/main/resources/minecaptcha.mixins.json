@@ -1,0 +1,16 @@
+{
+	"required": true,
+	"package": "org.cbigames.captcha.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+		"ClientConnectionMixin",
+		"ServerConfigurationNetworkHandlerAccessorMixin",
+		"ServerConfigurationNetworkHandlerMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}
