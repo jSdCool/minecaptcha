@@ -1,15 +1,20 @@
 package org.cbigames.captcha;
 
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.dialog.AfterAction;
 import net.minecraft.dialog.DialogActionButtonData;
 import net.minecraft.dialog.DialogButtonData;
 import net.minecraft.dialog.DialogCommonData;
 import net.minecraft.dialog.action.DynamicCustomDialogAction;
 import net.minecraft.dialog.body.DialogBody;
+import net.minecraft.dialog.body.ItemDialogBody;
 import net.minecraft.dialog.body.PlainMessageDialogBody;
 import net.minecraft.dialog.input.TextInputControl;
 import net.minecraft.dialog.type.DialogInput;
 import net.minecraft.dialog.type.NoticeDialog;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.common.ShowDialogS2CPacket;
@@ -30,13 +35,31 @@ public class CaptchaTask implements ServerPlayerConfigurationTask {
 
     private final String captchaValue;
 
+    private final List<Integer> imageNumbers = new ArrayList<>();
+
     public CaptchaTask(){
-        StringBuilder sb = new StringBuilder();
-        for(int i=0;i<13;i++){
-            String LETTERS = "abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKMLNOPQRSTUVWXYZ";
-            sb.append(LETTERS.charAt((int)(Math.random()* LETTERS.length())));
+        switch (Config.getConfig().getMethod()) {
+            case TEXT -> {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < 13; i++) {
+                    String LETTERS = "abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKMLNOPQRSTUVWXYZ";
+                    sb.append(LETTERS.charAt((int) (Math.random() * LETTERS.length())));
+                }
+                captchaValue = sb.toString();
+            }
+
+            case IMAGE -> {
+
+                imageNumbers.add(0);
+                imageNumbers.add(0);
+                imageNumbers.add(0);
+                imageNumbers.add(0);
+                imageNumbers.add(0);
+
+                captchaValue = "IMAGE";
+            }
+            case null, default -> captchaValue = "ERROR";
         }
-        captchaValue = sb.toString();
     }
 
     @Override
@@ -51,7 +74,23 @@ public class CaptchaTask implements ServerPlayerConfigurationTask {
 
         List<DialogBody> body = new ArrayList<>();
         body.add(new PlainMessageDialogBody(Text.of("Enter the text below to prove your not a robot"),300));
-        body.add(new PlainMessageDialogBody(captchaText,300));
+
+        @SuppressWarnings("MismatchedQueryAndUpdateOfCollection") ArrayList<Boolean> flags = new ArrayList<>();
+        @SuppressWarnings("MismatchedQueryAndUpdateOfCollection") ArrayList<String> strings = new ArrayList<>();
+        @SuppressWarnings("MismatchedQueryAndUpdateOfCollection") ArrayList<Integer> colors = new ArrayList<>();
+
+        switch (Config.getConfig().getMethod()) {
+            case TEXT -> body.add(new PlainMessageDialogBody(captchaText, 300));
+            case IMAGE -> {
+                for(int i:imageNumbers){
+                    ArrayList<Float> number = new ArrayList<>();
+                    number.add((float)i);
+                    ItemStack item = Items.COMMAND_BLOCK_MINECART.getDefaultStack();
+                    item.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(number,flags,strings,colors));
+                    body.add(new ItemDialogBody(item,Optional.empty(),false,false,28,28));
+                }
+            }
+        }
 
         List<DialogInput> inputs = new ArrayList<>();
         inputs.add(new DialogInput("response",new TextInputControl(300,Text.of("Response"),true,"",40,Optional.empty())));
