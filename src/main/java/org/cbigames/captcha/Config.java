@@ -1,6 +1,7 @@
 package org.cbigames.captcha;
 
 import org.json.JSONObject;
+import org.w3c.dom.ranges.RangeException;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -16,6 +17,12 @@ public class Config {
                 if(line.startsWith("method=")){
                     String methodString = line.substring("method=".length());
                     method = CaptchaMethod.of(methodString);
+                }else if(line.startsWith("length=")){
+                    String lengthStr = line.substring("length=".length());
+                    captchaLength = Integer.parseInt(lengthStr);
+                    if(captchaLength < 1 || captchaLength > 100){
+                        throw new IndexOutOfBoundsException("Captcha length out of bounds [1,99]: "+captchaLength);
+                    }
                 }
             }
         } catch (FileNotFoundException e) {
@@ -38,6 +45,7 @@ public class Config {
     }
 
     private CaptchaMethod method = CaptchaMethod.TEXT;
+    private int captchaLength = 8;
 
     private final ArrayList<ImageValueMap> valueMaps = new ArrayList<>();
 
@@ -51,12 +59,18 @@ public class Config {
         return valueMaps.get(index).value();
     }
 
+    public int getCaptchaLength() {
+        return captchaLength;
+    }
+
     private static void saveNewConfig(){
         new File("config/").mkdirs();
         try (FileWriter fw = new FileWriter("config/minecaptcha.cfg")){
             fw.write("""
                     # captcha method, how the captcha will be conducted. options are: TEXT and IMAGE. Text mode will simply display a random text string for the user to enter. Image mode will display several images of text that the user will have to input. note, they will have to apply the resource pack for this to work. Image definitions are sourced from captchaimage.json
                     method=TEXT
+                    # captcha length, how long the supplied text is
+                    length=8
                     """);
             fw.flush();
         } catch (IOException e) {

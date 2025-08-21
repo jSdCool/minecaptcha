@@ -42,7 +42,8 @@ public class CaptchaTask implements ServerPlayerConfigurationTask {
         switch (Config.getConfig().getMethod()) {
             case TEXT -> {
                 StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < 13; i++) {
+                int length = Config.getConfig().getCaptchaLength();
+                for (int i = 0; i < length; i++) {
                     String LETTERS = "abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKMLNOPQRSTUVWXYZ";
                     sb.append(LETTERS.charAt((int) (Math.random() * LETTERS.length())));
                 }
@@ -51,15 +52,10 @@ public class CaptchaTask implements ServerPlayerConfigurationTask {
 
             case IMAGE -> {
                 int numberImages = Config.getConfig().getNumberValues();
-                imageNumbers.add((int)(Math.random()*numberImages));
-                imageNumbers.add((int)(Math.random()*numberImages));
-                imageNumbers.add((int)(Math.random()*numberImages));
-                imageNumbers.add((int)(Math.random()*numberImages));
-                imageNumbers.add((int)(Math.random()*numberImages));
-                imageNumbers.add((int)(Math.random()*numberImages));
-                imageNumbers.add((int)(Math.random()*numberImages));
-                imageNumbers.add((int)(Math.random()*numberImages));
-
+                int length = Config.getConfig().getCaptchaLength();
+                for(int i=0;i<length;i++) {
+                    imageNumbers.add((int) (Math.random() * numberImages));
+                }
                 StringBuilder sb = new StringBuilder();
                 for(int num: imageNumbers){
                     sb.append(Config.getConfig().getValue(num));
