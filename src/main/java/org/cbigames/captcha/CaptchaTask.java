@@ -66,7 +66,7 @@ public class CaptchaTask implements ServerPlayerConfigurationTask {
                 }
 
                 captchaValue = sb.toString();
-                Minecaptcha.LOGGER.info("Sending captcha: "+captchaValue);
+                //Minecaptcha.LOGGER.info("Sending captcha: "+captchaValue);
             }
             case null, default -> captchaValue = "ERROR";
         }
@@ -99,6 +99,7 @@ public class CaptchaTask implements ServerPlayerConfigurationTask {
                     item.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(number,flags,strings,colors));
                     body.add(new ItemDialogBody(item,Optional.empty(),false,false,16,16));
                 }
+                body.add(new PlainMessageDialogBody(Text.of("note: sometimes these numbers may not be accurate"),300));
             }
         }
 
@@ -121,7 +122,7 @@ public class CaptchaTask implements ServerPlayerConfigurationTask {
 
     public boolean handleResponse(NbtCompound response){
         String captchaResponse = response.getString("response","");
-        Minecaptcha.LOGGER.info("Received response: "+captchaResponse+" compaired to: "+captchaValue);
+        //Minecaptcha.LOGGER.info("Received response: "+captchaResponse+" compaired to: "+captchaValue);
         return captchaResponse.equals(captchaValue);
     }
 }
