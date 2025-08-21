@@ -25,6 +25,7 @@ import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -49,14 +50,23 @@ public class CaptchaTask implements ServerPlayerConfigurationTask {
             }
 
             case IMAGE -> {
+                int numberImages = Config.getConfig().getNumberValues();
+                imageNumbers.add((int)(Math.random()*numberImages));
+                imageNumbers.add((int)(Math.random()*numberImages));
+                imageNumbers.add((int)(Math.random()*numberImages));
+                imageNumbers.add((int)(Math.random()*numberImages));
+                imageNumbers.add((int)(Math.random()*numberImages));
+                imageNumbers.add((int)(Math.random()*numberImages));
+                imageNumbers.add((int)(Math.random()*numberImages));
+                imageNumbers.add((int)(Math.random()*numberImages));
 
-                imageNumbers.add(0);
-                imageNumbers.add(0);
-                imageNumbers.add(0);
-                imageNumbers.add(0);
-                imageNumbers.add(0);
+                StringBuilder sb = new StringBuilder();
+                for(int num: imageNumbers){
+                    sb.append(Config.getConfig().getValue(num));
+                }
 
-                captchaValue = "IMAGE";
+                captchaValue = sb.toString();
+                Minecaptcha.LOGGER.info("Sending captcha: "+captchaValue);
             }
             case null, default -> captchaValue = "ERROR";
         }
@@ -87,7 +97,7 @@ public class CaptchaTask implements ServerPlayerConfigurationTask {
                     number.add((float)i);
                     ItemStack item = Items.COMMAND_BLOCK_MINECART.getDefaultStack();
                     item.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(number,flags,strings,colors));
-                    body.add(new ItemDialogBody(item,Optional.empty(),false,false,28,28));
+                    body.add(new ItemDialogBody(item,Optional.empty(),false,false,16,16));
                 }
             }
         }
@@ -111,7 +121,7 @@ public class CaptchaTask implements ServerPlayerConfigurationTask {
 
     public boolean handleResponse(NbtCompound response){
         String captchaResponse = response.getString("response","");
-
+        Minecaptcha.LOGGER.info("Received response: "+captchaResponse+" compaired to: "+captchaValue);
         return captchaResponse.equals(captchaValue);
     }
 }

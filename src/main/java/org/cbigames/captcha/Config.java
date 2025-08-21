@@ -1,9 +1,9 @@
 package org.cbigames.captcha;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import org.json.JSONObject;
+
+import java.io.*;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Config {
@@ -21,9 +21,35 @@ public class Config {
         } catch (FileNotFoundException e) {
             saveNewConfig();
         }
+
+        if(method == CaptchaMethod.IMAGE){
+            try {
+                FileInputStream fis = new FileInputStream("config/captchaimage.json");
+                JSONObject valuesJson = Main.loadJSONObject(fis);
+                fis.close();
+                int numberImages = valuesJson.getInt("total images");
+                for(int i=0;i<numberImages;i++){
+                    valueMaps.add(new ImageValueMap(i,valuesJson.getInt(""+i)));
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     private CaptchaMethod method = CaptchaMethod.TEXT;
+
+    private final ArrayList<ImageValueMap> valueMaps = new ArrayList<>();
+
+    private static Config instance;
+
+    public int getNumberValues(){
+        return valueMaps.size();
+    }
+
+    public int getValue(int index){
+        return valueMaps.get(index).value();
+    }
 
     private static void saveNewConfig(){
         new File("config/").mkdirs();
@@ -37,8 +63,6 @@ public class Config {
             throw new RuntimeException(e);
         }
     }
-
-    private static Config instance;
 
     public static Config getConfig(){
         if(instance == null){
@@ -63,6 +87,8 @@ public class Config {
     public CaptchaMethod getMethod() {
         return method;
     }
+
+    public record ImageValueMap(int imageNumber, int value){}
 }
 
 
