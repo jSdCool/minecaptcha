@@ -1,7 +1,11 @@
 plugins {
 	id 'fabric-loom' version "${loom_version}"
 	id 'maven-publish'
+	id 'application'
+	id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
+
+apply plugin: 'com.github.johnrengelman.shadow'
 
 version = project.mod_version
 group = project.maven_group
@@ -16,7 +20,11 @@ repositories {
 	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
 	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
 	// for more information about repositories.
+	mavenCentral()
+
 }
+
+configurations { shade }
 
 dependencies {
 	// To change the versions see the gradle.properties file
@@ -26,7 +34,9 @@ dependencies {
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-	
+
+	//include the org.json lib for when running the raw jar file
+	implementation shade("org.json:json:20250517")
 }
 
 processResources {
@@ -51,13 +61,31 @@ java {
 	targetCompatibility = JavaVersion.VERSION_21
 }
 
+shadowJar {
+	configurations = [project.configurations.shade]
+	destinationDirectory.set(layout.buildDirectory.dir('devlibs'))
+}
+
+remapJar {
+	dependsOn tasks.shadowJar
+	inputFile.set(tasks.shadowJar.archiveFile)
+}
+
 jar {
 	inputs.property "archivesName", project.base.archivesName
 
 	from("LICENSE") {
 		rename { "${it}_${inputs.properties.archivesName}"}
 	}
+	manifest {
+		attributes 'Main-Class': 'org.cbigames.captcha.Main' // Replace with your actual main class
+	}
 }
+
+application {
+	mainClass = "org.cbigames.captcha.Main"
+}
+
 
 // configure the maven publication
 publishing {
