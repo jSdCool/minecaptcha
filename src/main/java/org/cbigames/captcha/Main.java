@@ -148,7 +148,7 @@ public class Main {
         output.putNextEntry(new ZipEntry("pack.mcmeta"));
         textOut.println("{");
             textOut.println("  \"pack\": {");
-                textOut.println("    \"pack_format\": 64,");
+                textOut.println("    \"pack_format\": 69.0,");
                 textOut.println("    \"description\": \"The number textures for the captcha\"");
             textOut.println("  }");
         textOut.println("}");
