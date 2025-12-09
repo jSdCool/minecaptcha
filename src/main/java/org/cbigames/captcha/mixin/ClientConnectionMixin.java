@@ -7,7 +7,7 @@ import net.minecraft.network.PacketListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.ServerboundCustomClickActionPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.network.ConfigurationTask;
 import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
 import org.cbigames.captcha.CaptchaTask;
@@ -28,7 +28,7 @@ public abstract class ClientConnectionMixin {
     @Inject(method = "channelRead0(Lio/netty/channel/ChannelHandlerContext;Lnet/minecraft/network/protocol/Packet;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/Connection;genericsFtw(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;)V"))
     private void handlePacket(ChannelHandlerContext channelHandlerContext, Packet<?> packet, CallbackInfo ci){
         if(packet instanceof ServerboundCustomClickActionPacket(
-                ResourceLocation id, java.util.Optional<net.minecraft.nbt.Tag> payload
+                Identifier id, java.util.Optional<net.minecraft.nbt.Tag> payload
         )){
             if(id.equals(CaptchaTask.CLICK_EVENT_ID)){
                 if(packetListener instanceof ServerConfigurationPacketListenerImpl networkHandler) {

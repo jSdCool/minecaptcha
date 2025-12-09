@@ -49,12 +49,6 @@ public class Main {
         //copy the images into the resource pack
         copyImagesToResourcePack(resourcePackOut,newMap);
 
-//        //generate the item models for this and add them to the resource pack
-//        generateAllItemModelDeffs(resourcePackOut,zipTextWriter,numberOfImages);
-//
-//        //generate the item texture overrides
-//        generateItemModelOverrides(resourcePackOut,zipTextWriter,numberOfImages);
-
         resourcePackOut.flush();
         resourcePackOut.close();
 
@@ -74,60 +68,6 @@ public class Main {
 
     //assets/minecraft/
       //items/command_block_minecart.json
-
-//    private static void generateItemModelOverrides(ZipOutputStream output,PrintWriter textOut,int numberOfImages) throws IOException {
-//        output.putNextEntry(new ZipEntry("assets/minecraft/items/command_block_minecart.json"));
-//
-//        JSONObject itemJson = new JSONObject();
-//        JSONObject modelJson = new JSONObject();
-//        modelJson.put("type","minecraft:range_dispatch");
-//        modelJson.put("property","custom_model_data");
-//        JSONObject fallbackObject = new JSONObject();
-//        fallbackObject.put("type", "model");
-//        fallbackObject.put("model","item/command_block_minecart");
-//        modelJson.put("fallback",fallbackObject);
-//        JSONArray entriesArr = new JSONArray();
-//        for(int i=0;i<numberOfImages;i++){
-//            JSONObject entry = new JSONObject();
-//            entry.put("threshold",(float)i);
-//            JSONObject internalModel = new JSONObject();
-//            internalModel.put("type","model");
-//            internalModel.put("model","captcha:item/img"+i);
-//            entry.put("model",internalModel);
-//            entriesArr.put(entry);
-//        }
-//        modelJson.put("entries",entriesArr);
-//        itemJson.put("model",modelJson);
-//
-//        itemJson.write(textOut);
-//        textOut.flush();
-//        output.closeEntry();
-//    }
-//
-//    private static void generateAllItemModelDeffs(ZipOutputStream output,PrintWriter textOut,int numberOfImages) throws IOException {
-//        for(int i=0;i<numberOfImages;i++){
-//            generateItemModelDeff(output,textOut,i);
-//        }
-//    }
-
-//    private static void generateItemModelDeff(ZipOutputStream output, PrintWriter textOut,int imageNumber) throws IOException {
-//        JSONObject modelJSON = new JSONObject();
-//        JSONArray sizeArr = new JSONArray();
-//        sizeArr.put(28);
-//        sizeArr.put(28);
-//        modelJSON.put("texture_size",sizeArr);
-//
-//        JSONObject textureJson = new JSONObject();
-//        textureJson.put("layer0","captcha:item/img"+imageNumber);
-//        textureJson.put("particle","captcha:item/img"+imageNumber);
-//        modelJSON.put("textures",textureJson);
-//        modelJSON.put("parent","item/generated");
-//
-//        output.putNextEntry(new ZipEntry("assets/captcha/models/item/img"+imageNumber+".json"));
-//        modelJSON.write(textOut);
-//        textOut.flush();
-//        output.closeEntry();
-//    }
 
     private static void copyImagesToResourcePack(ZipOutputStream output, List<valueMap> imageMappings) throws IOException {
         for(int i=0;i<imageMappings.size();i++){

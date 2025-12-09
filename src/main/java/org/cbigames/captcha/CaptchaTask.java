@@ -8,7 +8,7 @@ import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.chat.contents.objects.AtlasSprite;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.ClientboundShowDialogPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.dialog.ActionButton;
 import net.minecraft.server.dialog.CommonButtonData;
 import net.minecraft.server.dialog.CommonDialogData;
@@ -30,7 +30,7 @@ import java.util.function.Consumer;
 public class CaptchaTask implements ConfigurationTask {
 
     public static final Type KEY = new Type("captcha");
-    public static final ResourceLocation CLICK_EVENT_ID = ResourceLocation.fromNamespaceAndPath(Minecaptcha.MOD_ID,"captcha_response");
+    public static final Identifier CLICK_EVENT_ID = Identifier.fromNamespaceAndPath(Minecaptcha.MOD_ID,"captcha_response");
 
     private final String captchaValue;
 
@@ -71,7 +71,7 @@ public class CaptchaTask implements ConfigurationTask {
         return KEY;
     }
     @Override
-    public void start(Consumer<Packet<?>> sender) {
+    public void start(@NotNull Consumer<Packet<?>> sender) {
 
         MutableComponent captchaText = Component.literal(captchaValue);
         captchaText.setStyle(captchaText.getStyle().withBold(true).withColor(TextColor.fromRgb(0x00FFFF)));
@@ -85,7 +85,7 @@ public class CaptchaTask implements ConfigurationTask {
                 MutableComponent images = Component.literal(".");
                 images.setStyle(images.getStyle().withBold(true));
                 for(int i:imageNumbers){
-                      images.append(Component.object(new AtlasSprite(AtlasSprite.DEFAULT_ATLAS,ResourceLocation.fromNamespaceAndPath("captcha","item/img"+i))));
+                      images.append(Component.object(new AtlasSprite(Identifier.parse("items"),Identifier.fromNamespaceAndPath("captcha","item/img"+i))));
 
                 }
                 body.add(new PlainMessage(images,300));
