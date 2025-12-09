@@ -1,17 +1,17 @@
 package org.cbigames.captcha.mixin;
 
 
-import net.minecraft.server.network.ServerConfigurationNetworkHandler;
-import net.minecraft.server.network.ServerPlayerConfigurationTask;
+import net.minecraft.server.network.ConfigurationTask;
+import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-@Mixin(ServerConfigurationNetworkHandler.class)
+@Mixin(ServerConfigurationPacketListenerImpl.class)
 public interface ServerConfigurationNetworkHandlerAccessorMixin {
     @Accessor
-    ServerPlayerConfigurationTask getCurrentTask();
+    ConfigurationTask getCurrentTask();
 
-    @Invoker("onTaskFinished")
-    void onTaskFinishedI(ServerPlayerConfigurationTask.Key key);
+    @Invoker("finishCurrentTask")
+    void onTaskFinishedI(ConfigurationTask.Type key);
 }

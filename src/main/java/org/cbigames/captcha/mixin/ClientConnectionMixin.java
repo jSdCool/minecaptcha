@@ -1,15 +1,15 @@
 package org.cbigames.captcha.mixin;
 
 import io.netty.channel.ChannelHandlerContext;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.ClientConnection;
-import net.minecraft.network.listener.PacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.c2s.common.CustomClickActionC2SPacket;
-import net.minecraft.server.network.ServerConfigurationNetworkHandler;
-import net.minecraft.server.network.ServerPlayerConfigurationTask;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.PacketListener;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.ServerboundCustomClickActionPacket;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.network.ConfigurationTask;
+import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
 import org.cbigames.captcha.CaptchaTask;
 import org.cbigames.captcha.Minecaptcha;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,37 +18,37 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ClientConnection.class)
+@Mixin(Connection.class)
 public abstract class ClientConnectionMixin {
 
 
     @Shadow
     private PacketListener packetListener;
 
-    @Inject(method = "channelRead0(Lio/netty/channel/ChannelHandlerContext;Lnet/minecraft/network/packet/Packet;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/ClientConnection;handlePacket(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/listener/PacketListener;)V"))
+    @Inject(method = "channelRead0(Lio/netty/channel/ChannelHandlerContext;Lnet/minecraft/network/protocol/Packet;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/Connection;genericsFtw(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;)V"))
     private void handlePacket(ChannelHandlerContext channelHandlerContext, Packet<?> packet, CallbackInfo ci){
-        if(packet instanceof CustomClickActionC2SPacket(
-                Identifier id, java.util.Optional<net.minecraft.nbt.NbtElement> payload
+        if(packet instanceof ServerboundCustomClickActionPacket(
+                ResourceLocation id, java.util.Optional<net.minecraft.nbt.Tag> payload
         )){
             if(id.equals(CaptchaTask.CLICK_EVENT_ID)){
-                if(packetListener instanceof ServerConfigurationNetworkHandler networkHandler) {
+                if(packetListener instanceof ServerConfigurationPacketListenerImpl networkHandler) {
                     //its our event
 
-                    ClientConnection self = (ClientConnection) (Object) this;
+                    Connection self = (Connection) (Object) this;
 
-                    ServerPlayerConfigurationTask task = ((ServerConfigurationNetworkHandlerAccessorMixin)networkHandler).getCurrentTask();
+                    ConfigurationTask task = ((ServerConfigurationNetworkHandlerAccessorMixin)networkHandler).getCurrentTask();
 
                     if(task instanceof CaptchaTask captchaTask) {
-                        if(captchaTask.handleResponse(payload.orElse(new NbtCompound()).asCompound().orElse(new NbtCompound()))) {
+                        if(captchaTask.handleResponse(payload.orElse(new CompoundTag()).asCompound().orElse(new CompoundTag()))) {
 
 
                             ((ServerConfigurationNetworkHandlerAccessorMixin)networkHandler).onTaskFinishedI(CaptchaTask.KEY);
                         } else{
-                            self.disconnect(Text.of("You are a Robot"));
+                            self.disconnect(Component.nullToEmpty("You are a Robot"));
                         }
                     } else {
                         Minecaptcha.LOGGER.error("Attempted to process captcha response but the current task was not a captcha!");
-                        self.disconnect(Text.of("Internal Server Error!"));
+                        self.disconnect(Component.nullToEmpty("Internal Server Error!"));
                     }
                 }else{
                     Minecaptcha.LOGGER.error("received captcha event when player was not in configuration phase");
