@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version "${loom_version}"
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
 	id 'application'
 	id 'com.gradleup.shadow' version '9.3.0'
@@ -24,16 +24,18 @@ repositories {
 
 }
 
-configurations { shade }
+configurations {
+	shade
+	implementation.extendsFrom shade
+}
 
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings loom.officialMojangMappings()
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
 	//include the org.json lib for when running the raw jar file
 	implementation shade("org.json:json:20250517")
@@ -48,7 +50,7 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 21
+	it.options.release = 25
 }
 
 java {
@@ -57,21 +59,26 @@ java {
 	// If you remove this line, sources will not be generated.
 	withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
 }
 
 shadowJar {
 	configurations = [project.configurations.shade]
 	destinationDirectory.set(layout.buildDirectory.dir('devlibs'))
-}
-
-remapJar {
-	dependsOn tasks.shadowJar
-	inputFile.set(tasks.shadowJar.archiveFile)
+	destinationDirectory.set(layout.buildDirectory.dir('devlibs'))
 }
 
 jar {
+	dependsOn shadowJar
+
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE//necessary
+
+	from(zipTree(shadowJar.archiveFile)) {
+		// This prevents double-including project classes if they are already in the shadowJar
+		exclude "fabric.mod.json"
+	}
+
 	inputs.property "archivesName", project.base.archivesName
 
 	from("LICENSE") {
