@@ -89,7 +89,7 @@ public class Main {
         textOut.println("{");
             textOut.println("  \"pack\": {");
                 textOut.println("    \"min_format\": 69.0,");
-                textOut.println("   \"max_format\": 75,");
+                textOut.println("   \"max_format\": 84,");
                 textOut.println("    \"description\": \"The number textures for the captcha\"");
             textOut.println("  }");
         textOut.println("}");
